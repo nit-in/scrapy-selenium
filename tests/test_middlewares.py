@@ -7,6 +7,7 @@ from scrapy.crawler import Crawler
 
 from scrapy_selenium.http import SeleniumRequest
 from scrapy_selenium.middlewares import SeleniumMiddleware
+from unittest.mock import patch
 
 from .test_cases import BaseScrapySeleniumTestCase
 
@@ -135,3 +136,19 @@ class SeleniumMiddlewareTestCase(BaseScrapySeleniumTestCase):
             html_response.selector.xpath('//title/text()').extract_first(),
             'scrapy_selenium'
         )
+
+    def test_process_request_should_wait_after_script(self):
+        """Test that the `process_request` should have a wait time after excuting script"""
+        selenium_request = SeleniumRequest(
+            url='http://www.python.org',
+            script='document.title = "scrapy_selenium";',
+            script_execution_pause=1
+        )
+
+        with patch('time.sleep', return_value=None) as patched_time_sleep:
+            self.selenium_middleware.process_request(
+                request=selenium_request,
+                spider=None
+            )
+
+        self.assertEqual(1, patched_time_sleep.call_count)
