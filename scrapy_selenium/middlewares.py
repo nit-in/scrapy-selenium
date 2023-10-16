@@ -6,6 +6,7 @@ from scrapy import signals
 from scrapy.exceptions import NotConfigured
 from scrapy.http import HtmlResponse
 from selenium.webdriver.support.ui import WebDriverWait
+import time
 
 from .http import SeleniumRequest
 
@@ -120,6 +121,8 @@ class SeleniumMiddleware:
 
         if request.script:
             self.driver.execute_script(request.script)
+            if request.script_execution_pause:
+                time.sleep(request.script_execution_pause)
 
         body = str.encode(self.driver.page_source)
 
