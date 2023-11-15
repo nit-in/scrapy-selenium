@@ -7,12 +7,19 @@ from scrapy.crawler import Crawler
 
 from scrapy_selenium.http import SeleniumRequest
 from scrapy_selenium.middlewares import SeleniumMiddleware
+from unittest.mock import patch
+from selenium.webdriver.support import expected_conditions as EC
 
 from .test_cases import BaseScrapySeleniumTestCase
 
 
 class SeleniumMiddlewareTestCase(BaseScrapySeleniumTestCase):
     """Test case for the ``SeleniumMiddleware`` middleware"""
+    sample_script = {
+        "script": "window.scrollTo(0, document.body.scrollHeight);",
+        "wait": 1,
+        "wait_until": EC.url_changes('http://www.python.org')
+    }
 
     @classmethod
     def setUpClass(cls):
@@ -123,7 +130,7 @@ class SeleniumMiddlewareTestCase(BaseScrapySeleniumTestCase):
 
         selenium_request = SeleniumRequest(
             url='http://www.python.org',
-            script='document.title = "scrapy_selenium";'
+            script_dict_list=[self.sample_script]
         )
 
         html_response = self.selenium_middleware.process_request(
@@ -133,5 +140,21 @@ class SeleniumMiddlewareTestCase(BaseScrapySeleniumTestCase):
 
         self.assertEqual(
             html_response.selector.xpath('//title/text()').extract_first(),
-            'scrapy_selenium'
+            'Welcome to Python.org'
         )
+
+    def test_process_request_should_wait_after_script(self):
+        """Test that the `process_request` should have a wait time after excuting script"""
+        self.sample_script['pause'] = 3
+        selenium_request = SeleniumRequest(
+            url='http://www.python.org',
+            script_dict_list=[self.sample_script]
+        )
+
+        with patch('time.sleep', return_value=None) as patched_time_sleep:
+            self.selenium_middleware.process_request(
+                request=selenium_request,
+                spider=None
+            )
+
+        self.assertEqual(1, patched_time_sleep.call_count)

@@ -6,7 +6,7 @@ from scrapy import Request
 class SeleniumRequest(Request):
     """Scrapy ``Request`` subclass providing additional arguments"""
 
-    def __init__(self, wait_time=None, wait_until=None, screenshot=False, script=None, *args, **kwargs):
+    def __init__(self, wait_time=None, wait_until=None, screenshot=False, script_dict_list=None, *args, **kwargs):
         """Initialize a new selenium request
 
         Parameters
@@ -19,14 +19,14 @@ class SeleniumRequest(Request):
         screenshot: bool
             If True, a screenshot of the page will be taken and the data of the screenshot
             will be returned in the response "meta" attribute.
-        script: str
-            JavaScript code to execute.
-
+        script: list of dictionaries. Each
+            dictionary represents a script to be executed by the Selenium driver. Each
+            dictionary in the list can have the following keys: script, wait, pause
         """
 
         self.wait_time = wait_time
         self.wait_until = wait_until
         self.screenshot = screenshot
-        self.script = script
+        self.script_dict_list = script_dict_list
 
         super().__init__(*args, **kwargs)

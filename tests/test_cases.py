@@ -22,8 +22,8 @@ class BaseScrapySeleniumTestCase(TestCase):
         """Create a scrapy process and a spider class to use in the tests"""
 
         cls.settings = {
-            'SELENIUM_DRIVER_NAME': 'firefox',
-            'SELENIUM_DRIVER_EXECUTABLE_PATH': which('geckodriver'),
+            'SELENIUM_DRIVER_NAME': 'chrome',
+            'SELENIUM_DRIVER_EXECUTABLE_PATH': which('chromedriver'),
             'SELENIUM_DRIVER_ARGUMENTS': ['-headless']
         }
         cls.spider_klass = cls.SimpleSpider
